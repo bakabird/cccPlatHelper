@@ -1,0 +1,50 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.qhhz.cocos.libandroid">
+
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+#IFUM
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+#ENDUM
+
+    <application>
+        <meta-data android:name = "android.max_aspect"  android:value="2.2" />
+        <activity
+            android:name="com.qhhz.cocos.libandroid.ProtocolConfirmActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize|screenLayout"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+#IFUM
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="um.6491456ba1a164591b35f18f" />
+#ENDUM
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name="com.qhhz.cocos.libandroid.ProtocolActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize|screenLayout"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
+
+        <activity
+            android:name="com.qhhz.cocos.libandroid.PrivateActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize|screenLayout"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
+
+    </application>
+
+</manifest>
