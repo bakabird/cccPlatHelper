@@ -56,7 +56,6 @@ export default class PlatMi extends PlatBase {
         })
     }
 
-    // TODO: 测试一下小米的视频播放
     public showRewardAd(arg: {
         suc: () => void,
         fail?: (errcode: number) => void,
@@ -217,6 +216,29 @@ export default class PlatMi extends PlatBase {
             }
         }
     }
+
+
+    /**
+     * 确认平台准备完毕
+     */
+    public checkPlatReady(onReady: Function) {
+        if (this.sysInfo.platformVersionCode > 1060) {
+            const updateManager = qg.getUpdateManager()
+            updateManager.onCheckForUpdate(function (res) {
+                // 请求完新版本信息的回调
+                console.log('onCheckForUpdate', res.hasUpdate)
+            })
+            updateManager.onUpdateReady(function () {
+                // 新的版本已经下载好，调用 applyUpdate 应用新版本并重启
+                updateManager.applyUpdate()
+            })
+            updateManager.onUpdateFailed(function () {
+                // 新版本下载失败
+            })
+        }
+        onReady()
+    }
+
 
     public showInterstitialAd(arg: {
         posId: string,

@@ -18,6 +18,7 @@ export default class PlatOPPO extends PlatBase {
     private _bannerAd;
     private _lastBannerPos: string;
     private _insertAd;
+    private _deviceInfo: any;
 
     public showAD(onSuc: ADCallback, onNotSupport: Function, posId: string) {
         this.showRewardAd({
@@ -101,6 +102,62 @@ export default class PlatOPPO extends PlatBase {
         } else {
             qg.vibrateLong({ success(res) { }, fail(res) { } });  //400 ms
         }
+    }
+
+    /**
+     * 确认平台准备完毕
+     */
+    public checkPlatReady(onReady: Function) {
+        qg.getSystemInfo({
+            success: data => {
+                this._deviceInfo = {
+                    brand: data.brand, model: data.model, pixelRatio: data.pixelRatio,
+                    screenWidth: data.screenWidth, screenHeight: data.screenHeight,
+                    windowWidth: data.windowWidth, windowHeight: data.windowHeight, statusBarHeight: data.statusBarHeight,
+                    language: data.language, version: '', system: data.system, platform: data.platformVersionName, fontSizeSetting: 0, SDKVersion: '', benchmarkLevel: 0, platformVersionCode: data.platformVersionCode,
+                };
+                console.log('sysinfo:', JSON.stringify(data));
+                if (this._deviceInfo.platformVersionCode >= 1094) {
+                    this._dealUpdate();
+                }
+            },
+            fail: err => {
+                console.error('getsysinfo failed:', err);
+            },
+            complete: () => {
+                onReady()
+            }
+        });
+    }
+
+    private _dealUpdate() {
+        const updateManager = qg.getUpdateManager();
+        //检测是否有可更新版本
+        updateManager.onCheckForUpdate(function (res) {
+            // 请求完新版本信息的回调
+            if (res.hasUpdate) {
+                // updateManager.applyRpkUpdate();
+            } else {
+                console.log("PlatOPPO 没有可更新版本");
+                // qg.showToast({
+                //     title: "没有可更新版本",
+                //     icon: "none",
+                //     duration: 2000,
+                // });
+            }
+        });
+        updateManager.onUpdateReady(function () {
+            qg.showModal({
+                title: "更新提示",
+                content: "新版本已经准备好，是否重启应用？",
+                success: function (res) {
+                    if (res.confirm) {
+                        // 新的版本已经下载好，调用 applyUpdate 应用新版本并重启
+                        updateManager.applyUpdate();
+                    }
+                },
+            });
+        });
     }
 
     public endGame() {

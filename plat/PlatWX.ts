@@ -187,6 +187,39 @@ export default class PlatWX extends PlatBase {
         return this._compareVersion(curVersion, minVersion) >= 0;
     }
 
+    /**
+     * 确认平台准备完毕
+     */
+    public checkPlatReady(onReady: Function) {
+        wx.showShareMenu({
+            withShareTicket: true,
+            menus: ['shareAppMessage', 'shareTimeline']
+        })
+        if (this.isOverMinVersion("1.9.90")) {
+            const updateManager = wx.getUpdateManager()
+            updateManager.onCheckForUpdate(function (res) {
+                // 请求完新版本信息的回调
+                console.log(res.hasUpdate)
+            })
+            updateManager.onUpdateReady(function () {
+                wx.showModal({
+                    title: '更新提示',
+                    content: '新版本已经准备好，是否重启应用？',
+                    success: function (res) {
+                        if (res.confirm) {
+                            // 新的版本已经下载好，调用 applyUpdate 应用新版本并重启
+                            updateManager.applyUpdate()
+                        }
+                    }
+                })
+            })
+            updateManager.onUpdateFailed(function () {
+                // 新版本下载失败
+            })
+        }
+        onReady()
+    }
+
     private _compareVersion(v1, v2) {
         v1 = v1.split('.')
         v2 = v2.split('.')

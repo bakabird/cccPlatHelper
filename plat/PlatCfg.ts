@@ -6,5 +6,5 @@ export enum GameEnv {
     YYB = "YYB",
 }
 export default {
-env: GameEnv.Oppo,
+    env: GameEnv.Taptap,
 }

@@ -66,6 +66,31 @@ export default class PlatVIVO extends PlatBase {
         }
     }
 
+    /**
+     * 确认平台准备完毕
+     */
+    public checkPlatReady(onReady: Function) {
+        const update = qg.getUpdateManager()
+        update.onUpdateReady(function (data) {
+            console.log('onUpdateReady')
+            qg.showDialog({
+                title: '更新提示',
+                message: '新版本已经准备好，是否重启应用？',
+                success: function (data) {
+                    update.applyUpdate()//强制进行更新
+                },
+            })
+        })
+        update.onCheckForUpdate(function (data) {
+            console.log('onCheckForUpdate')
+        })
+        update.onUpdateFailed(function (data) {
+            console.log('onUpdateFailed')
+        })
+        onReady()
+    }
+
+
     public showBannerAd(arg: {
         posId: string,
         pos: "top" | "bottom",
