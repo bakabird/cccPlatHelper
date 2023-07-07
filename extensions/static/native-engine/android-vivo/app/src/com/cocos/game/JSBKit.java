@@ -3,6 +3,7 @@ package com.cocos.game;
 import android.util.Log;
 
 import com.qhhz.cocos.libandroid.JSBKitBase;
+import com.qhhz.cocos.libandroid.Runkit;
 import com.vivo.unionsdk.open.VivoAccountCallback;
 import com.vivo.unionsdk.open.VivoUnionSDK;
 
@@ -20,11 +21,43 @@ public class JSBKit extends JSBKitBase {
     }
 
     private boolean mem_EverAntiAddiction = false;
+    private boolean mem_PlatReady = false;
+    private boolean mem_AntiAddiction = false;
 
     @Override
     protected void OnAntiAddiction(String uid) {
+        AppActivity act = AppActivity.get();
+        if (!mem_AntiAddiction) {
+            VivoUnionSDK.registerAccountCallback(act, new VivoAccountCallback() {
+                @Override
+                public void onVivoAccountLogin(String username, String openid, String authToken) {
+                    Log.d(TAG, "Vivo login suc");
+                    //登录成功，openid参数为用户唯一标识
+                    act.setM_usernamel(username);
+                    act.setM_openid(openid);
+                    act.setM_authToken(authToken);
+                    if (mem_EverAntiAddiction) {
+                        AntiAddictionRet();
+                        mem_EverAntiAddiction = false;
+                    }
+                }
+
+                @Override
+                public void onVivoAccountLogout(int i) {
+                    //登录退出
+                    Log.d(TAG, "Vivo logout");
+                }
+
+                @Override
+                public void onVivoAccountLoginCancel() {
+                    //登录取消
+                    Log.d(TAG, "Vivo login cancel");
+                }
+            });
+            mem_AntiAddiction = true;
+        }
         mem_EverAntiAddiction = true;
-        VivoUnionSDK.login(AppActivity.get());
+        VivoUnionSDK.login(act);
     }
 
     @Override
@@ -37,7 +70,7 @@ public class JSBKit extends JSBKitBase {
     }
     @Override
     protected void OnEndGame(String arg) {
-        AppActivity.get().ExitGame();
+        Runkit.get().ExitGame();
     }
 
     protected void OnShowBannerAd(String arg) {
@@ -58,36 +91,15 @@ public class JSBKit extends JSBKitBase {
 
     @Override
     protected void OnCheckPlatReady(String arg) {
+        if (mem_PlatReady) {
+            CheckPlatReadyRet("");
+            return;
+        }
         AppActivity act = AppActivity.get();
         act.runOnUiThread(() -> {
             App.get().initSDK(() -> {
                 VivoUnionSDK.onPrivacyAgreed(act);
-                VivoUnionSDK.registerAccountCallback(act, new VivoAccountCallback() {
-                    @Override
-                    public void onVivoAccountLogin(String username, String openid, String authToken) {
-                        Log.d(TAG, "Vivo login suc");
-                        //登录成功，openid参数为用户唯一标识
-                        act.setM_usernamel(username);
-                        act.setM_openid(openid);
-                        act.setM_authToken(authToken);
-                        if (mem_EverAntiAddiction) {
-                            AntiAddictionRet();
-                            mem_EverAntiAddiction = false;
-                        }
-                    }
-
-                    @Override
-                    public void onVivoAccountLogout(int i) {
-                        //登录退出
-                        Log.d(TAG, "Vivo logout");
-                    }
-
-                    @Override
-                    public void onVivoAccountLoginCancel() {
-                        //登录取消
-                        Log.d(TAG, "Vivo login cancel");
-                    }
-                });
+                mem_PlatReady = true;
                 CheckPlatReadyRet("");
             });
         });
@@ -96,6 +108,6 @@ public class JSBKit extends JSBKitBase {
 
     @Override
     public void CheckPlatReadyRet(String arg) {
-        dispatch("CheckPlatReadyRet");
+        dispatch("CheckPlatReadyRet", "Debug");
     }
 }

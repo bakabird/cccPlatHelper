@@ -125,7 +125,7 @@ export default class PlatWX extends PlatBase {
             this._lastRwdPosId = arg.posId;
             this._initRewardedAd(arg.posId);
         }
-        this._videoAd.load();
+        this._videoAd.show();
     }
 
     public vibrate(type: "long" | "short") {
@@ -140,6 +140,7 @@ export default class PlatWX extends PlatBase {
     }
 
     private _initRewardedAd(posId: string) {
+        let autoplay = true;
         const rewardedAd = wx.createRewardedVideoAd({
             adUnitId: posId,
         });
@@ -158,25 +159,27 @@ export default class PlatWX extends PlatBase {
         rewardedAd.onError(err => {
             console.log("激励视频广告加载失败", err);
             rwdADFail();
+            this._videoAd = null;
         });
         rewardedAd.onLoad(() => {
             console.log('激励视频广告加载完成-onload触发');
-            // rewardedAd.show();
+            if (autoplay) {
+                rewardedAd.show()
+                autoplay = false;
+            }
         })
         rewardedAd.onClose((res) => {
             console.log('视频广告关闭回调')
-            if (res === undefined) {
+            // 用户点击了【关闭广告】按钮
+            // 小于 2.1.0 的基础库版本，res 是一个 undefined
+            if (res && res.isEnded || res === undefined) {
+                // 正常播放结束，可以下发游戏奖励
                 console.log("正常播放结束，可以下发游戏奖励");
                 rwdAdSuc();
             } else {
-                console.log('用户点击了关闭广告按钮')
-                if (res.isEnded) {
-                    console.log('用户看完了')
-                    rwdAdSuc();
-                } else {
-                    console.log("播放中途退出，不下发游戏奖励");
-                    rwdAdCancel();
-                }
+                // 播放中途退出，不下发游戏奖励
+                console.log("播放中途退出，不下发游戏奖励");
+                rwdAdCancel();
             }
         });
         this._videoAd = rewardedAd;
@@ -190,7 +193,7 @@ export default class PlatWX extends PlatBase {
     /**
      * 确认平台准备完毕
      */
-    public checkPlatReady(onReady: Function) {
+    public checkPlatReady(onReady: (env: "Debug" | "Release") => void) {
         wx.showShareMenu({
             withShareTicket: true,
             menus: ['shareAppMessage', 'shareTimeline']
@@ -217,7 +220,7 @@ export default class PlatWX extends PlatBase {
                 // 新版本下载失败
             })
         }
-        onReady()
+        onReady("Release")
     }
 
     private _compareVersion(v1, v2) {

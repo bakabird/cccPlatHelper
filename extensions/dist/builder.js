@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.assetHandlers = exports.configs = exports.checkAndEnable = exports.GameEnv = exports.unload = exports.load = void 0;
+exports.assetHandlers = exports.configs = exports.checkAndEnable = exports.Channel = exports.unload = exports.load = void 0;
 const load = function () {
     console.debug('cocos-build-template load');
 };
@@ -9,14 +9,15 @@ const unload = function () {
     console.debug('cocos-build-template unload');
 };
 exports.unload = unload;
-var GameEnv;
-(function (GameEnv) {
-    GameEnv["Taptap"] = "Taptap";
-    GameEnv["Oppo"] = "Oppo";
-    GameEnv["Vivo"] = "Vivo";
-    GameEnv["Mi"] = "Mi";
-    GameEnv["YYB"] = "YYB";
-})(GameEnv = exports.GameEnv || (exports.GameEnv = {}));
+var Channel;
+(function (Channel) {
+    Channel["Taptap"] = "Taptap";
+    Channel["Oppo"] = "Oppo";
+    Channel["Vivo"] = "Vivo";
+    Channel["Mi"] = "Mi";
+    Channel["YYB"] = "YYB";
+    Channel["Default"] = "Default";
+})(Channel = exports.Channel || (exports.Channel = {}));
 function checkAndEnable(option) {
     return option.platform == "android" && option.packages['plat-helper'].and_enable;
 }
@@ -29,9 +30,9 @@ const verify_rule_map = {
                 return true;
             if (typeof val != "string")
                 return false;
-            const curEnv = option.packages['plat-helper'].and_env;
-            return (curEnv == GameEnv.Oppo && val != "") ||
-                (curEnv != GameEnv.Oppo && val == "");
+            const curEnv = option.packages['plat-helper'].and_channel;
+            return (curEnv == Channel.Oppo && val != "") ||
+                (curEnv != Channel.Oppo && val == "");
         }
     },
     ruleMi: {
@@ -41,9 +42,9 @@ const verify_rule_map = {
                 return true;
             if (typeof val != "string")
                 return false;
-            const curEnv = option.packages['plat-helper'].and_env;
-            return (curEnv == GameEnv.Mi && val != "") ||
-                (curEnv != GameEnv.Mi && val == "");
+            const curEnv = option.packages['plat-helper'].and_channel;
+            return (curEnv == Channel.Mi && val != "") ||
+                (curEnv != Channel.Mi && val == "");
         }
     },
     ruleTapTap: {
@@ -53,9 +54,9 @@ const verify_rule_map = {
                 return true;
             if (typeof val != "string")
                 return false;
-            const curEnv = option.packages['plat-helper'].and_env;
-            return (curEnv == GameEnv.Taptap && val != "") ||
-                (curEnv != GameEnv.Taptap && val == "");
+            const curEnv = option.packages['plat-helper'].and_channel;
+            return (curEnv == Channel.Taptap && val != "") ||
+                (curEnv != Channel.Taptap && val == "");
         }
     },
     ruleVivo: {
@@ -65,9 +66,9 @@ const verify_rule_map = {
                 return true;
             if (typeof val != "string")
                 return false;
-            const curEnv = option.packages['plat-helper'].and_env;
-            return (curEnv == GameEnv.Vivo && val != "") ||
-                (curEnv != GameEnv.Vivo && val == "");
+            const curEnv = option.packages['plat-helper'].and_channel;
+            return (curEnv == Channel.Vivo && val != "") ||
+                (curEnv != Channel.Vivo && val == "");
         }
     },
     ruleYYb: {
@@ -77,9 +78,9 @@ const verify_rule_map = {
                 return true;
             if (typeof val != "string")
                 return false;
-            const curEnv = option.packages['plat-helper'].and_env;
-            return (curEnv == GameEnv.YYB && val != "") ||
-                (curEnv != GameEnv.YYB && val == "");
+            const curEnv = option.packages['plat-helper'].and_channel;
+            return (curEnv == Channel.YYB && val != "") ||
+                (curEnv != Channel.YYB && val == "");
         }
     },
     ruleAndEnable: {
@@ -151,16 +152,16 @@ const plat_option = {
             ui: "ui-checkbox",
         },
     },
-    and_env: {
-        label: "环境",
+    and_channel: {
+        label: "渠道",
         render: {
             ui: "ui-select",
             attributes: {
-                placeholder: "选择对应环境",
+                placeholder: "选择对应渠道",
             },
             items: [
-                GameEnv.Taptap, GameEnv.Oppo, GameEnv.Mi,
-                GameEnv.Vivo, GameEnv.YYB,
+                Channel.Taptap, Channel.Oppo, Channel.Mi,
+                Channel.Vivo, Channel.YYB, Channel.Default,
             ].map(e => ({
                 value: e,
                 label: e,

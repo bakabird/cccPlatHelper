@@ -189,8 +189,8 @@ module.exports = Editor.Panel.define({
                 },
                 _updateAdCfg(curVersion, contentPack) {
                     let tmpNum = 0;
-                    const lastestVersion = 1;
-                    const lines = contentPack.content.split("\n");
+                    const lastestVersion = 2;
+                    let lines = contentPack.content.split("\n");
                     if (curVersion < 1) {
                         // 0 -> 1
                         // 找到 微信小游戏
@@ -205,8 +205,22 @@ module.exports = Editor.Panel.define({
                             return -1;
                         // 塞入 
                         lines.splice(tmpNum, 0, `                case GameEnv.YYB: plat = "and_yyb";`, "                    break;");
-                        contentPack.content = lines.join("\n");
                     }
+                    if (curVersion < 2) {
+                        // 1 -> 2
+                        // 更新引用
+                        lines.splice(1, 3, `import { NATIVE, OPPO, VIVO, WECHAT, XIAOMI } from "cc/env";`, `import { sys } from "cc";`, `import Plat from "../Plat";`, `import { Channel } from "../PlatBase";`);
+                        // 调整 GameEnv 到 Channel
+                        let content = lines.join("\n");
+                        content = content.replace(/PlatCfg.env/g, "Plat.inst.channel");
+                        content = content.replace(/GameEnv.Oppo/g, "Channel.Oppo");
+                        content = content.replace(/GameEnv.Mi/g, "Channel.Mi");
+                        content = content.replace(/GameEnv.Vivo/g, "Channel.Vivo");
+                        content = content.replace(/GameEnv.YYB/g, "Channel.YYB");
+                        content = content.replace(/GameEnv.Taptap/g, "Channel.Taptap");
+                        lines = content.split("\n");
+                    }
+                    contentPack.content = lines.join("\n");
                     // remove Version
                     return lastestVersion;
                 },

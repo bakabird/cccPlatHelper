@@ -32,6 +32,7 @@ import android.view.KeyEvent;
 
 import com.cocos.lib.CocosActivity;
 import com.cocos.service.SDKWrapper;
+import com.qhhz.cocos.libandroid.Runkit;
 import com.vivo.unionsdk.open.VivoUnionSDK;
 
 public class AppActivity extends CocosActivity {
@@ -118,16 +119,16 @@ public class AppActivity extends CocosActivity {
         Log.d(TAG, "down " + keyCode);
         switch (keyCode) {
             case KeyEvent.KEYCODE_BACK:
-                ExitGame();
+                Runkit.get().ExitGame();
                 break;
         }
         return super.onKeyDown(keyCode, event);
     }
 
-    public void ExitGame() {
+    public void ExitGame(Runnable run) {
         BannerAd.cancelDlg();
         AppActivity.get().runOnUiThread(() -> {
-            VivoUnionSDK.exit(AppActivity.get(), new CustomExitCallback());
+            VivoUnionSDK.exit(AppActivity.get(), new CustomExitCallback(run));
         });
     }
     @Override

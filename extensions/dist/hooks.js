@@ -37,7 +37,7 @@ const onBeforeBuild = async function (options) {
     if (!(0, builder_1.checkAndEnable)(options))
         return;
     console.log(options);
-    revisePlatCfg(options);
+    // revisePlatCfg(options);
 };
 exports.onBeforeBuild = onBeforeBuild;
 const onBeforeCompressSettings = async function (options, result) {
@@ -54,6 +54,7 @@ const onAfterBuild = async function (options, result) {
         attachASProj(options);
         attachLiband(options);
         attachPlatVariable(options);
+        attachChannel2Mainjs(options, result);
         reviseGradleProp(options, result);
         reviseGradleVersion(options);
     }
@@ -76,23 +77,23 @@ function getOrientation(options) {
 function revisePlatCfg(options) {
     if (rawPlatTSDir == "")
         return;
-    const { and_env: env } = options.packages['plat-helper'];
+    const { and_channel: channel } = options.packages['plat-helper'];
     const GameCfgPath = Editor.Utils.Path.join(rawPlatTSDir, "./PlatCfg.ts");
     const cfgCnt = (0, fs_extra_1.readFileSync)(GameCfgPath, "utf-8");
     const cfgLines = cfgCnt.split("\n");
     for (let index = 0; index < cfgLines.length; index++) {
         const line = cfgLines[index];
         if (line.indexOf("env:") > -1) {
-            cfgLines[index] = `env: GameEnv.${env},`;
+            cfgLines[index] = `env: GameEnv.${channel},`;
         }
     }
     (0, fs_extra_1.writeFileSync)(GameCfgPath, cfgLines.join("\n"));
-    log("已修改 PlatCfg.ts " + `env ${env}`);
+    log("已修改 PlatCfg.ts " + `env ${channel}`);
 }
 function attachASProj(options) {
     if (options.platform != "android")
         return;
-    const { and_env: env } = options.packages['plat-helper'];
+    const { and_channel: channel } = options.packages['plat-helper'];
     const pjoin = Editor.Utils.Path.join;
     const projPath = pjoin(options.buildPath.replace("project://", Editor.Project.path + "\\"), options.outputName, "proj");
     const propPath = pjoin(projPath, "gradle.properties");
@@ -148,20 +149,20 @@ function makesureASProj(options) {
     return EnvAsProjPath;
 }
 function ajustMainfest(options, content) {
-    const { and_env: env } = options.packages['plat-helper'];
-    if (env == builder_1.GameEnv.Mi) {
+    const { and_channel: channel } = options.packages['plat-helper'];
+    if (channel == builder_1.Channel.Mi) {
         return ajustMainfestMi(options, content);
     }
-    else if (env == builder_1.GameEnv.Oppo) {
+    else if (channel == builder_1.Channel.Oppo) {
         return ajustMainfestOppo(options, content);
     }
-    else if (env == builder_1.GameEnv.Vivo) {
+    else if (channel == builder_1.Channel.Vivo) {
         return ajustMainfestVivo(options, content);
     }
-    else if (env == builder_1.GameEnv.Taptap) {
+    else if (channel == builder_1.Channel.Taptap) {
         return ajustMainfestTaptap(options, content);
     }
-    else if (env == builder_1.GameEnv.YYB) {
+    else if (channel == builder_1.Channel.YYB) {
         return ajustMainfestYYB(options, content);
     }
     else {
@@ -232,7 +233,7 @@ function makesureLiband(options) {
 function attachLiband(options) {
     if (options.platform != "android")
         return;
-    const { and_env: env } = options.packages['plat-helper'];
+    const { and_channel: channel } = options.packages['plat-helper'];
     const pjoin = Editor.Utils.Path.join;
     const projPath = pjoin(options.buildPath.replace("project://", Editor.Project.path + "\\"), options.outputName, "proj");
     // const libandoirdPath = pjoin(Editor.Project.path, "native/engine/libandroid").replace(/\\/g, "/");
@@ -269,7 +270,7 @@ rootProject.name = "LinesXFree"
 function attachPlatVariable(options) {
     if (options.platform != "android")
         return;
-    const { and_env: env } = options.packages['plat-helper'];
+    const { and_channel: channel } = options.packages['plat-helper'];
     const pjoin = Editor.Utils.Path.join;
     const projPath = pjoin(options.buildPath.replace("project://", Editor.Project.path + "\\"), options.outputName, "proj");
     const propPath = pjoin(projPath, "gradle.properties");
@@ -316,7 +317,7 @@ function tmpHub() {
 function reviseGradleProp(options, result) {
     if (options.platform != "android")
         return;
-    const { and_env: env, PROTOCOL_URL, PRIVATE_URL, and_enableAd: enableAd } = options.packages['plat-helper'];
+    const { and_channel: and_channel, PROTOCOL_URL, PRIVATE_URL, and_enableAd: enableAd } = options.packages['plat-helper'];
     const pjoin = Editor.Utils.Path.join;
     const projPath = pjoin(options.buildPath.replace("project://", Editor.Project.path + "\\"), options.outputName, "proj");
     const propPath = pjoin(projPath, "gradle.properties");
@@ -327,7 +328,7 @@ function reviseGradleProp(options, result) {
     const privateUrl = `PRIVATE_URL="${PRIVATE_URL}"`;
     const designWidth = `DESIGN_HEIGHT=${result.settings.screen.designResolution.height}`;
     const designHeight = `DESIGN_WIDTH=${result.settings.screen.designResolution.width}`;
-    const channel = `CHANNEL=${env}`;
+    const channel = `CHANNEL=${and_channel}`;
     const enableAdProp = `ENABLE_AD=${enableAd ? 1 : 0}`;
     const compileJavaCommend = `#业务编码字符集, 注意这是指定源码解码的字符集[编译器]`;
     const compileJava = `compileJava.options.encoding="UTF-8"`;
@@ -357,15 +358,15 @@ function reviseGradleProp(options, result) {
     //         log("已将 AS工程 min_sdk_version 设置为 23 ");
     //     }
     // }
-    if ([builder_1.GameEnv.Oppo, builder_1.GameEnv.Mi].includes(env)) {
+    if ([builder_1.Channel.Oppo, builder_1.Channel.Mi].includes(and_channel)) {
         propLines.push(useAndroidX);
         log("已为 AS工程 开启 useAndroidX ");
     }
-    if ([builder_1.GameEnv.Oppo, builder_1.GameEnv.Mi].includes(env)) {
+    if ([builder_1.Channel.Oppo, builder_1.Channel.Mi].includes(and_channel)) {
         propLines.push(enableJetifier);
         log("已为 AS工程 开启 enableJetifier");
     }
-    if ([builder_1.GameEnv.Mi, builder_1.GameEnv.Taptap].includes(env)) {
+    if ([builder_1.Channel.Mi, builder_1.Channel.Taptap].includes(and_channel)) {
         propLines.push(compileJavaCommend);
         propLines.push(compileJava);
         propLines.push(compileTestJavaCommend);
@@ -405,4 +406,18 @@ function reviseGradleVersion(options) {
     (0, fs_extra_1.writeFileSync)(gradleWrapperPath, lines.join("\n"));
     (0, fs_extra_1.writeFileSync)(buildGradlePath, (0, fs_extra_1.readFileSync)(buildGradleSourcePath, "utf-8"), "utf-8");
     log("已为 AS工程 设置 gradle 版本");
+}
+function attachChannel2Mainjs(options, result) {
+    const { and_channel: channel } = options.packages['plat-helper'];
+    const pjoin = Editor.Utils.Path.join;
+    const inject_script = `window.channel = "${channel}";\n
+    `;
+    var url = pjoin(result.dest, 'data', 'main.js');
+    if (!fs_extra_2.default.existsSync(url)) {
+        url = pjoin(result.dest, 'assets', 'main.js');
+    }
+    const data = fs_extra_2.default.readFileSync(url, "utf-8");
+    const newStr = inject_script + data;
+    fs_extra_2.default.writeFileSync(url, newStr, { encoding: "utf-8" });
+    console.warn("(window.channel) updated in built main.js for hot update");
 }

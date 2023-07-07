@@ -3,6 +3,7 @@ package com.cocos.game;
 import android.util.Log;
 
 import com.qhhz.cocos.libandroid.JSBKitBase;
+import com.qhhz.cocos.libandroid.Runkit;
 import com.xiaomi.gamecenter.sdk.MiCommplatform;
 import com.xiaomi.gamecenter.sdk.MiErrorCode;
 import com.xiaomi.gamecenter.sdk.OnExitListner;
@@ -57,7 +58,7 @@ public class JSBKit extends JSBKitBase {
 
     @Override
     protected void OnEndGame(String arg) {
-        AppActivity.get().ExitGame();
+        Runkit.get().ExitGame();
     }
 
     @Override
@@ -94,6 +95,6 @@ public class JSBKit extends JSBKitBase {
 
     @Override
     public void CheckPlatReadyRet(String arg) {
-        dispatch("CheckPlatReadyRet");
+        dispatch("CheckPlatReadyRet", "Debug");
     }
 }

@@ -16,7 +16,8 @@ export default class PlatIOS extends PlatBase {
 
     private _onShowRwdAdCallback: (isSuc: boolean, errcode?: number) => void;
     private _onLoginCallback: Function;
-    private _onCheckPlatReady: Function;
+    private _onCheckPlatReady: (env: "Debug" | "Release") => void;
+    private _uma: UMA;
 
     public logCatch(...args): void {
         console.log(`[JSB-IOS-CATCH]`, ...args);
@@ -36,11 +37,32 @@ export default class PlatIOS extends PlatBase {
                 this._onLoginCallback()
                 this._onLoginCallback = null;
             });
-            jsb.jsbBridgeWrapper.addNativeEventListener("CheckPlatReadyRet", (code: string) => {
+            jsb.jsbBridgeWrapper.addNativeEventListener("CheckPlatReadyRet", (env: "Debug" | "Release") => {
                 this.logCatch("CheckPlatReadyRet")
-                this._onCheckPlatReady()
+                this._onCheckPlatReady(env)
                 this._onCheckPlatReady = null;
             });
+            this._uma = {
+                trackEvent(eventId, params: string | object) {
+                    if (typeof (params) == "string") {
+                        params = { p2c_val: params }
+                    } else {
+                        for (let key in params) {
+                            params[key] = params[key].toString();
+                        }
+                    }
+                    jsb.jsbBridgeWrapper.dispatchEventToNative('Track', JSON.stringify({
+                        eventID: eventId,
+                        params,
+                    }));
+                }
+            } as UMA;
+        } else {
+            this._uma = {
+                trackEvent(eventId, params) {
+                    console.log('[uma]trackEvent', eventId, params)
+                }
+            } as UMA;
         }
     }
 
@@ -128,7 +150,7 @@ export default class PlatIOS extends PlatBase {
         }
     }
 
-    checkPlatReady(onReady: Function): void {
+    public checkPlatReady(onReady: (env: "Debug" | "Release") => void) {
         if (NATIVE) {
             if (this._onCheckPlatReady)
                 return;
@@ -141,5 +163,9 @@ export default class PlatIOS extends PlatBase {
 
     public get plat(): GamePlat {
         return GamePlat.ios
+    }
+
+    public get uma(): UMA {
+        return this._uma
     }
 }

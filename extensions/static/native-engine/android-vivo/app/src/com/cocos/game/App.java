@@ -79,8 +79,8 @@ public class App extends Application {
             }
 
             @Override
-            public void ExitGame() {
-                AppActivity.get().ExitGame();
+            public void ExitGame(Runnable run) {
+                AppActivity.get().ExitGame(run);
             }
         });
     }

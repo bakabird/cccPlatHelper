@@ -56,6 +56,7 @@ export default class UmKit {
         let gameJsPath = pjoin(dir, "game.js");
         let path = joinPack("static/uma/utils")
         let requirePath = "import uma from \"./utils";
+        let uploadUserInfo = false;
         switch (options.platform) {
             case "wechatgame":
                 if (options.packages["build-plugin-exportconfig"] && options.packages["build-plugin-exportconfig"].platform == "qq") {
@@ -95,7 +96,8 @@ export default class UmKit {
                 break
             case "bytedance-mini-game":
                 path = pjoin(path, "umtrack-tt-game");
-                requirePath = requirePath + "/umtrack/lib/uma.min.js\"";
+                requirePath = `var uma = require('./utils/umtrack/lib/uma.min')`
+                uploadUserInfo = true;
                 break;
             default:
                 return;
@@ -115,7 +117,8 @@ export default class UmKit {
       appKey: '${options.packages["plat-helper"].umId}',
       useOpenid: ${options.packages["plat-helper"].umUseOpenId}, // default true
       autoGetOpenid: ${options.packages["plat-helper"].umUseOpenId},
-      debug: ${options.packages["plat-helper"].umDebug}
+      debug: ${options.packages["plat-helper"].umDebug},
+      uploadUserInfo: ${uploadUserInfo},
     });\n` + content;
         fs.writeFileSync(gameJsPath, content);
     }

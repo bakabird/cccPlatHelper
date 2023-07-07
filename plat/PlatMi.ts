@@ -221,7 +221,7 @@ export default class PlatMi extends PlatBase {
     /**
      * 确认平台准备完毕
      */
-    public checkPlatReady(onReady: Function) {
+    public checkPlatReady(onReady: (env: "Debug" | "Release") => void) {
         if (this.sysInfo.platformVersionCode > 1060) {
             const updateManager = qg.getUpdateManager()
             updateManager.onCheckForUpdate(function (res) {
@@ -236,7 +236,7 @@ export default class PlatMi extends PlatBase {
                 // 新版本下载失败
             })
         }
-        onReady()
+        onReady("Release")
     }
 
 

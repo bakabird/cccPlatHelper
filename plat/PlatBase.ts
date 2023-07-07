@@ -13,6 +13,17 @@ export enum GamePlat {
     ios = "ios",
     and = "and",
     mi = "mi",
+    huawei = "huawei",
+    tt = "tt",
+}
+
+export enum Channel {
+    Taptap = "Taptap",
+    Oppo = "Oppo",
+    Vivo = "Vivo",
+    Mi = "Mi",
+    YYB = "YYB",
+    Default = "Default",
 }
 
 export default class PlatBase {
@@ -186,8 +197,8 @@ export default class PlatBase {
     /**
      * 确认平台准备完毕
      */
-    public checkPlatReady(onReady: Function) {
-        onReady();
+    public checkPlatReady(onReady: (env: "Debug" | "Release") => void) {
+        onReady("Release");
     }
 
     public get uma(): UMA {
@@ -202,6 +213,9 @@ export default class PlatBase {
         return GamePlat.dev;
     }
 
+    public get channel(): Channel {
+        return Channel.Default;
+    }
 }
 
 

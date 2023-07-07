@@ -10,12 +10,13 @@ export const unload: BuildPlugin.load = function () {
     console.debug('cocos-build-template unload');
 };
 
-export enum GameEnv {
+export enum Channel {
     Taptap = "Taptap",
     Oppo = "Oppo",
     Vivo = "Vivo",
     Mi = "Mi",
     YYB = "YYB",
+    Default = "Default",
 }
 
 interface IPluginExportOptions {
@@ -31,7 +32,7 @@ export namespace PlatHelp {
 
         BR_BELOW_AND: string,
         and_enable: boolean,
-        and_env: GameEnv;
+        and_channel: Channel;
         and_enableAd: boolean,
         PROTOCOL_URL: string,
         PRIVATE_URL: string,
@@ -86,9 +87,9 @@ const verify_rule_map = {
         func(val: any, option: PlatHelp.ITaskOptions) {
             if (!checkAndEnable(option)) return true
             if (typeof val != "string") return false;
-            const curEnv = option.packages['plat-helper'].and_env
-            return (curEnv == GameEnv.Oppo && val != "") ||
-                (curEnv != GameEnv.Oppo && val == "");
+            const curEnv = option.packages['plat-helper'].and_channel
+            return (curEnv == Channel.Oppo && val != "") ||
+                (curEnv != Channel.Oppo && val == "");
         }
     },
     ruleMi: {
@@ -96,9 +97,9 @@ const verify_rule_map = {
         func(val: any, option: PlatHelp.ITaskOptions) {
             if (!checkAndEnable(option)) return true
             if (typeof val != "string") return false;
-            const curEnv = option.packages['plat-helper'].and_env
-            return (curEnv == GameEnv.Mi && val != "") ||
-                (curEnv != GameEnv.Mi && val == "");
+            const curEnv = option.packages['plat-helper'].and_channel
+            return (curEnv == Channel.Mi && val != "") ||
+                (curEnv != Channel.Mi && val == "");
         }
     },
     ruleTapTap: {
@@ -106,9 +107,9 @@ const verify_rule_map = {
         func(val: any, option: PlatHelp.ITaskOptions) {
             if (!checkAndEnable(option)) return true
             if (typeof val != "string") return false;
-            const curEnv = option.packages['plat-helper'].and_env
-            return (curEnv == GameEnv.Taptap && val != "") ||
-                (curEnv != GameEnv.Taptap && val == "");
+            const curEnv = option.packages['plat-helper'].and_channel
+            return (curEnv == Channel.Taptap && val != "") ||
+                (curEnv != Channel.Taptap && val == "");
         }
     },
     ruleVivo: {
@@ -116,9 +117,9 @@ const verify_rule_map = {
         func(val: any, option: PlatHelp.ITaskOptions) {
             if (!checkAndEnable(option)) return true
             if (typeof val != "string") return false;
-            const curEnv = option.packages['plat-helper'].and_env
-            return (curEnv == GameEnv.Vivo && val != "") ||
-                (curEnv != GameEnv.Vivo && val == "");
+            const curEnv = option.packages['plat-helper'].and_channel
+            return (curEnv == Channel.Vivo && val != "") ||
+                (curEnv != Channel.Vivo && val == "");
         }
     },
     ruleYYb: {
@@ -126,9 +127,9 @@ const verify_rule_map = {
         func(val: any, option: PlatHelp.ITaskOptions) {
             if (!checkAndEnable(option)) return true
             if (typeof val != "string") return false;
-            const curEnv = option.packages['plat-helper'].and_env
-            return (curEnv == GameEnv.YYB && val != "") ||
-                (curEnv != GameEnv.YYB && val == "");
+            const curEnv = option.packages['plat-helper'].and_channel
+            return (curEnv == Channel.YYB && val != "") ||
+                (curEnv != Channel.YYB && val == "");
         }
     },
     ruleAndEnable: {
@@ -203,16 +204,16 @@ const plat_option = {
             ui: "ui-checkbox",
         },
     },
-    and_env: {
-        label: "环境",
+    and_channel: {
+        label: "渠道",
         render: {
             ui: "ui-select",
             attributes: {
-                placeholder: "选择对应环境",
+                placeholder: "选择对应渠道",
             },
             items: [
-                GameEnv.Taptap, GameEnv.Oppo, GameEnv.Mi,
-                GameEnv.Vivo, GameEnv.YYB,
+                Channel.Taptap, Channel.Oppo, Channel.Mi,
+                Channel.Vivo, Channel.YYB, Channel.Default,
             ].map(e => ({
                 value: e,
                 label: e,

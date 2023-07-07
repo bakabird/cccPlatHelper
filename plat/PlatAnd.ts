@@ -1,5 +1,5 @@
 import { NATIVE } from "cc/env";
-import PlatBase, { ADCallback, GamePlat } from "./PlatBase";
+import PlatBase, { ADCallback, Channel, GamePlat } from "./PlatBase";
 // 3.6.0 以前将下面两行注释即可
 import { native } from "cc";
 var jsb = native;
@@ -17,7 +17,7 @@ export default class PlatAnd extends PlatBase {
 
     private _onShowRwdAdCallback: (isSuc: boolean, errcode?: number) => void;
     private _onLoginCallback: Function;
-    private _onCheckPlatReady: Function;
+    private _onCheckPlatReady: (env: "Debug" | "Release") => void;
     private _uma: UMA;
 
     public logCatch(...args): void {
@@ -38,9 +38,9 @@ export default class PlatAnd extends PlatBase {
                 this._onLoginCallback()
                 this._onLoginCallback = null;
             });
-            jsb.jsbBridgeWrapper.addNativeEventListener("CheckPlatReadyRet", (code: string) => {
+            jsb.jsbBridgeWrapper.addNativeEventListener("CheckPlatReadyRet", (env: "Debug" | "Release") => {
                 this.logCatch("CheckPlatReadyRet")
-                this._onCheckPlatReady()
+                this._onCheckPlatReady(env)
                 this._onCheckPlatReady = null;
             });
             this._uma = {
@@ -146,7 +146,7 @@ export default class PlatAnd extends PlatBase {
         }
     }
 
-    checkPlatReady(onReady: Function): void {
+    public checkPlatReady(onReady: (env: "Debug" | "Release") => void) {
         if (NATIVE) {
             if (this._onCheckPlatReady)
                 return;
@@ -163,5 +163,9 @@ export default class PlatAnd extends PlatBase {
 
     public get uma(): UMA {
         return this._uma
+    }
+
+    public get channel(): Channel {
+        return window.channel as Channel;
     }
 }

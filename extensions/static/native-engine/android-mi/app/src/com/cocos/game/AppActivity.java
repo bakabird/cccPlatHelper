@@ -37,6 +37,7 @@ import com.bytedance.sdk.openadsdk.TTAdConstant;
 import com.cocos.lib.CocosActivity;
 import com.cocos.service.SDKWrapper;
 import com.qhhz.cocos.libandroid.IVoidCallback;
+import com.qhhz.cocos.libandroid.Runkit;
 import com.qhhz.cocos.libandroid.SplashDialog;
 import com.xiaomi.gamecenter.sdk.MiCommplatform;
 import com.xiaomi.gamecenter.sdk.MiErrorCode;
@@ -55,6 +56,8 @@ public class AppActivity extends CocosActivity {
 
     public final static String TAG = "AppActivity";
 
+    private boolean mem_PlatReady = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,10 +69,15 @@ public class AppActivity extends CocosActivity {
     }
 
     public void checkReady(IVoidCallback onRdy) {
+        if (mem_PlatReady) {
+            onRdy.callback();
+            return;
+        }
         SplashDialog.Close();
         MiCommplatform.getInstance().onUserAgreed(App.get());
         AdKit.get().init();
         onRdy.callback();
+        mem_PlatReady = true;
     }
 
     @Override
@@ -159,7 +167,7 @@ public class AppActivity extends CocosActivity {
         Log.d(TAG, "down " + keyCode);
         switch (keyCode) {
             case KeyEvent.KEYCODE_BACK:
-                ExitGame();
+                Runkit.get().ExitGame();
                 break;
         }
         return super.onKeyDown(keyCode, event);
@@ -169,11 +177,12 @@ public class AppActivity extends CocosActivity {
         return getResources().getConfiguration().orientation == ORIENTATION_PORTRAIT;
     }
 
-    public void ExitGame() {
+    public void ExitGame(Runnable run) {
         MiCommplatform.getInstance().miAppExit(AppActivity.get(), new OnExitListner() {
             @Override
             public void onExit(int code) {
                 if (code == MiErrorCode.MI_XIAOMI_EXIT) {
+                    run.run();
                     android.os.Process.killProcess(android.os.Process.myPid());
                 }
             }

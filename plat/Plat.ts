@@ -1,5 +1,5 @@
 import { sys } from "cc";
-import { DEV, NATIVE, OPPO, VIVO, WECHAT, XIAOMI } from "cc/env";
+import { BYTEDANCE, DEV, HUAWEI, NATIVE, OPPO, VIVO, WECHAT, XIAOMI } from "cc/env";
 import PlatAnd from "./PlatAnd";
 import PlatBase from "./PlatBase";
 import PlatIOS from "./PlatIOS";
@@ -8,6 +8,8 @@ import PlatOPPO from "./PlatOPPO";
 import PlatVIVO from "./PlatVIVO";
 import PlatWX from "./PlatWX";
 import PlatWeb from "./PlatWeb";
+import PlatHW from "./PlatHW";
+import PlatTT from "./PlatTT";
 
 export default class Plat {
     public static forceUsePlatWeb: boolean = false
@@ -26,6 +28,10 @@ export default class Plat {
             return PlatMi.getInstance();
         } else if (OPPO) {
             return PlatOPPO.getInstance();
+        } else if (HUAWEI) {
+            return PlatHW.getInstance();
+        } else if (BYTEDANCE) {
+            return PlatTT.getInstance();
         } else {
             return PlatWeb.getInstance();
         }
@@ -35,9 +41,6 @@ export default class Plat {
     }
     public static get isIos() {
         return NATIVE && sys.os === sys.OS.IOS
-    }
-    public static get isMi() {
-        return XIAOMI
     }
 
 }

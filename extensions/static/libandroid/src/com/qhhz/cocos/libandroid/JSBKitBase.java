@@ -135,6 +135,7 @@ public abstract class JSBKitBase {
 
     /***
      * 原生代码 0.隐私确认完毕 1.SDK初始化完毕 后通知游戏
+     * @return Debug | Release
      */
     public abstract void CheckPlatReadyRet(String arg);
 

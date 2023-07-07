@@ -1,7 +1,8 @@
-// ！不要删除也不要修改这个注释！ Version 1
+// ！不要删除也不要修改这个注释！ Version 2
 import { NATIVE, OPPO, VIVO, WECHAT, XIAOMI } from "cc/env";
-import PlatCfg, { GameEnv } from "../PlatCfg";
 import { sys } from "cc";
+import Plat from "../Plat";
+import { Channel } from "../PlatBase";
 
 export default {
     rwdAdDefault: "",
@@ -57,16 +58,16 @@ export default {
         let plat = "default";
         if (NATIVE && sys.os === sys.OS.ANDROID) {
             // if (true) {
-            switch (PlatCfg.env) {
-                case GameEnv.Oppo: plat = "and_oppo";
+            switch (Plat.inst.channel) {
+                case Channel.Oppo: plat = "and_oppo";
                     break;
-                case GameEnv.Mi: plat = "and_mi";
+                case Channel.Mi: plat = "and_mi";
                     break;
-                case GameEnv.Vivo: plat = "and_vivo";
+                case Channel.Vivo: plat = "and_vivo";
                     break;
-                case GameEnv.YYB: plat = "and_yyb";
-                    break;    
-                case GameEnv.Taptap: plat = "and_taptap";
+                case Channel.YYB: plat = "and_yyb";
+                    break;
+                case Channel.Taptap: plat = "and_taptap";
                     break;
             }
         } else if (NATIVE && sys.os === sys.OS.IOS) {

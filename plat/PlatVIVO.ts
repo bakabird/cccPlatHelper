@@ -69,7 +69,7 @@ export default class PlatVIVO extends PlatBase {
     /**
      * 确认平台准备完毕
      */
-    public checkPlatReady(onReady: Function) {
+    public checkPlatReady(onReady: (env: "Debug" | "Release") => void) {
         const update = qg.getUpdateManager()
         update.onUpdateReady(function (data) {
             console.log('onUpdateReady')
@@ -87,7 +87,7 @@ export default class PlatVIVO extends PlatBase {
         update.onUpdateFailed(function (data) {
             console.log('onUpdateFailed')
         })
-        onReady()
+        onReady("Release")
     }
 
 

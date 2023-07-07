@@ -83,6 +83,11 @@ declare let wx: {
     uma: UMA
     [key: string]: any
 }
-declare interface Window {
+declare let tt: {
     uma: UMA
+    [key: string]: any
+}
+declare interface Window {
+    uma: UMA,
+    channel: string,
 }

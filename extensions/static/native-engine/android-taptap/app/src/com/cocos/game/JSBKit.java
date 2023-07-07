@@ -68,7 +68,7 @@ public class JSBKit extends JSBKitBase {
         Log.d(TAG, "CheckPlatReadyRet");
         SplashDialog.Close();
         if (mem_EverCheckPlatReady) {
-            dispatch("CheckPlatReadyRet");
+            dispatch("CheckPlatReadyRet", "Debug");
             mem_EverCheckPlatReady = false;
         }
     }

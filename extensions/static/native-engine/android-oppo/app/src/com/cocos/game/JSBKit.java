@@ -104,7 +104,7 @@ public class JSBKit extends JSBKitBase {
 
     @Override
     public void CheckPlatReadyRet(String arg) {
-        dispatch("CheckPlatReadyRet");
+        dispatch("CheckPlatReadyRet", "Debug");
     }
 
 
