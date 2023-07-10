@@ -1,5 +1,5 @@
-// ！不要删除也不要修改这个注释！ Version 2
-import { NATIVE, OPPO, VIVO, WECHAT, XIAOMI } from "cc/env";
+// ！不要删除也不要修改这个注释！ Version 3
+import { BYTEDANCE, HUAWEI, NATIVE, OPPO, VIVO, WECHAT, XIAOMI } from "cc/env";
 import { sys } from "cc";
 import Plat from "../Plat";
 import { Channel } from "../PlatBase";
@@ -31,6 +31,12 @@ export default {
     },
     // 安卓应用宝
     _and_yyb_: {
+    },
+    // 字节跳动：抖音
+    _tt_: {
+    },
+    // 华为
+    _hw_: {
     },
     // 微信小游戏
     _wx_: {
@@ -74,6 +80,10 @@ export default {
             plat = "ios";
         } else if (WECHAT) {
             plat = "wx";
+        } else if (BYTEDANCE) {
+            plat = "tt"
+        } else if (HUAWEI) {
+            plat = "hw"
         } else if (VIVO) {
             plat = "vivo";
         } else if (OPPO) {

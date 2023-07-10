@@ -26,6 +26,11 @@ export enum Channel {
     Default = "Default",
 }
 
+export type Plat_ShareRecordOption = {
+    vidPath?: string,
+    hashtag_list?: Array<string>,
+}
+
 export default class PlatBase {
     private testShowADCount: number = 0;
     private _isInit: boolean = false;
@@ -199,6 +204,50 @@ export default class PlatBase {
      */
     public checkPlatReady(onReady: (env: "Debug" | "Release") => void) {
         onReady("Release");
+    }
+
+    /**
+     * 开始录屏
+     */
+    public startRecord(options: {
+        duration?: number,
+        isMarkOpen?: boolean,
+        locTop?: number
+        locLeft?: number
+        frameRate?: number,
+    }) {
+        console.log("startRecord. do nothings", options)
+    }
+
+    /**
+     * 暂停录屏
+     */
+    public pauseRecord() {
+        console.log("pauseRecords. do nothings")
+    }
+
+    /**
+     * 恢复录屏
+     */
+    public resumeRecord() {
+        console.log("resumeRecord. do nothings")
+    }
+
+    /**
+     * 结束录屏
+     */
+    public stopRecord(onStop: (res: any) => void) {
+        console.log("stopRecord. do nothings");
+        onStop("");
+    }
+
+    /**
+     * 分享录屏
+     * @param options 
+     * @param {string} options.vidPath - 录屏的地址
+     */
+    public shareRecord(options: Plat_ShareRecordOption) {
+        console.log("shareRecord. do nothings", options)
     }
 
     public get uma(): UMA {

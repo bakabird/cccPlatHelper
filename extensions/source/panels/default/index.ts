@@ -136,7 +136,7 @@ module.exports = Editor.Panel.define({
                                     if (version == 0) {
                                         pack.content = `// ！不要删除也不要修改这个注释！ Version ${latestVersion}\n` + pack.content;
                                     } else {
-                                        pack.content.replace(
+                                        pack.content = pack.content.replace(
                                             /！不要删除也不要修改这个注释！ Version (\d*)/,
                                             `！不要删除也不要修改这个注释！ Version ${latestVersion}`
                                         )
@@ -157,7 +157,7 @@ module.exports = Editor.Panel.define({
                 },
                 _updateAdCfg(curVersion: number, contentPack: { content: string }): number {
                     let tmpNum = 0;
-                    const lastestVersion = 2;
+                    const lastestVersion = 3;
                     let lines = contentPack.content.split("\n");
                     if (curVersion < 1) {
                         // 0 -> 1
@@ -200,6 +200,38 @@ module.exports = Editor.Panel.define({
                         content = content.replace(/GameEnv.Taptap/g, "Channel.Taptap");
 
                         lines = content.split("\n");
+                    }
+                    if (curVersion < 3) {
+                        // 2 -> 3
+
+                        // 更新引用
+                        lines.splice(1, 1,
+                            `import { BYTEDANCE, HUAWEI, NATIVE, OPPO, VIVO, WECHAT, XIAOMI } from "cc/env";`)
+
+                        // 找到 微信小游戏
+                        tmpNum = lines.findIndex(line => line.includes("微信小游戏"))
+                        if (tmpNum < 0) return -1;
+                        // 塞入 
+                        lines.splice(tmpNum, 0,
+                            "    // 字节跳动：抖音",
+                            "    _tt_: {",
+                            "    },",
+                            "    // 华为",
+                            "    _hw_: {",
+                            "    },"
+                        );
+
+
+                        // 找到 (VIVO)
+                        tmpNum = lines.findIndex(line => line.includes(`(VIVO)`))
+                        if (tmpNum < 0) return -1;
+                        // 塞入 
+                        lines.splice(tmpNum, 0,
+                            `        } else if (BYTEDANCE) {`,
+                            `            plat = "tt"`,
+                            `        } else if (HUAWEI) {`,
+                            `            plat = "hw"`
+                        );
                     }
                     contentPack.content = lines.join("\n");
                     // remove Version
