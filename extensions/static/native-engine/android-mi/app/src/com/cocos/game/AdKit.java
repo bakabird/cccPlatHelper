@@ -3,15 +3,20 @@ package com.cocos.game;
 import android.app.Activity;
 import android.util.Log;
 import android.util.Pair;
+import android.view.ViewGroup;
+
+import androidx.annotation.Nullable;
 
 import com.LinesXFree.cocos.BuildConfig;
-import com.LinesXFree.cocos.R;
 import com.bytedance.sdk.openadsdk.TTAdSdk;
 import com.qhhz.cocos.libandroid.PermissionTipDialog;
 import com.qhhz.cocos.libandroid.SPStorage;
+import com.xiaomi.ad.mediation.MMAdConfig;
+import com.xiaomi.ad.mediation.MMAdError;
 import com.xiaomi.ad.mediation.internal.config.IMediationConfigInitListener;
 import com.xiaomi.ad.mediation.mimonew.MIMOAdSdkConfig;
 import com.xiaomi.ad.mediation.mimonew.MiMoNewSdk;
+import com.xiaomi.ad.mediation.splashad.MMAdSplash;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -32,9 +37,15 @@ public class AdKit {
 
     private String mem_userId;
     private int gid;
-
     private HashMap<String, Pair<Integer,RewardVideoAd>> _rwdAdMap;
     private HashMap<String, Pair<Integer,InsertAd>> _insAdMap;
+    /**
+     * 0 未初始化
+     * 1 初始化完毕
+     * 2 初始化中
+     */
+    private int mimoSDKStatu = 0;
+    private WaterflowerTemplateAd lastWaterflower;
 
     public String getUserId() {
         return mem_userId;
@@ -45,20 +56,13 @@ public class AdKit {
     }
 
 
-    /**
-     * 0 未初始化
-     * 1 初始化完毕
-     * 2 初始化中
-     */
-    private int mimoSDKStatu = 0;
-
     private AdKit() {
         gid = 0;
         _rwdAdMap = new HashMap<String, Pair<Integer,RewardVideoAd>>();
         _insAdMap = new HashMap<String, Pair<Integer,InsertAd>>();
     }
 
-    public void init() {
+    public void init(@Nullable Runnable onSuc) {
         Log.d(TAG, "init " + BuildConfig.MI_APP_NAME);
         mimoSDKStatu = 2;
 
@@ -72,6 +76,9 @@ public class AdKit {
                     public void onSuccess() {
                         Log.d(TAG, "mediation config init success");
                         mimoSDKStatu = 1;
+                        if (onSuc != null) {
+                            onSuc.run();
+                        }
                     }
 
                     @Override
@@ -135,7 +142,7 @@ public class AdKit {
             _rwdAdMap.get(posId).second.playAd();
         } else {
             if (mimoSDKStatu == 0) {
-                init();
+                init(null);
             }
             JSBKit.get().ShowAdRet("-1");
         }
@@ -174,8 +181,9 @@ public class AdKit {
             map.get(posId).second.playAd();
         } else {
             if (mimoSDKStatu == 0) {
-                init();
+                init(null);
             }
+            JSBKit.get().InsertAdRet("0");
         }
     }
 
@@ -183,8 +191,72 @@ public class AdKit {
         BannerAd.fetch(posId, "top");
     }
 
+    public void playSplash(ViewGroup container, String upId, Runnable onOver) {
+        Log.d(TAG,"playSplash");
+        Activity act = AppActivity.get();
+        final boolean[] isOver = {false};
+        MMAdConfig adConfig = new MMAdConfig();
+        adConfig.supportDeeplink = true;
+        adConfig.imageHeight = 1920;
+        adConfig.imageWidth = 1080;
+        adConfig.setSplashActivity(act);
+        adConfig.setSplashContainer(container);
+        MMAdSplash mAdSplash = new MMAdSplash(act, upId);
+        mAdSplash.onCreate();// 必须调用
+        mAdSplash.load(adConfig, new MMAdSplash.SplashAdInteractionListener() {
+            @Override
+            public void onAdSkip() {
+//点击跳过
+                Log.d(TAG, "onAdSkip");
+            }
+            @Override
+            public void onError(MMAdError error) {
+//展示出现异常
+                Log.d(TAG, "onError");
+                Log.e(TAG, error.errorMessage + " " + error.errorCode);
+                if(!isOver[0]) {
+                    onOver.run();
+                    isOver[0] = true;
+                }
+            }
+            @Override
+            public void onAdShow() {
+//广告展示
+                Log.d(TAG, "onAdShow");
+            }
+            @Override
+            public void onAdClicked() {
+//广告点击
+                Log.d(TAG, "onAdClicked");
+            }
+            @Override
+            public void onAdDismissed() {
+//广告消失
+                Log.d(TAG, "onAdDismissed");
+                if(!isOver[0]) {
+                    onOver.run();
+                    isOver[0] = true;
+                }
+            }
+        });
+    }
+
     public void hideBanner() {
         BannerAd.hidedlg();
+    }
+
+    public void playTemplate(String posId, boolean force, int gravity, boolean debug, String widthMode, int widthDp) {
+        if (lastWaterflower == null) {
+            lastWaterflower = new WaterflowerTemplateAd(posId, force, gravity, debug, widthMode, widthDp,
+                    AppActivity.get().getTemplateParentLayout(), AppActivity.get().getWaterFlowerLayout());
+        }
+    }
+
+    public void hideTemplate() {
+        if (lastWaterflower != null) {
+            lastWaterflower.close();
+            lastWaterflower = null;
+        }
     }
 
 }

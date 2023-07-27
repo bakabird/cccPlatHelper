@@ -110,6 +110,7 @@ public class RewardVideoAd {
         Log.d(TAG, "reqAd. id " + uid);
         if (statu != 0) {
             Log.d(TAG, "reqAdCancel statu is " + statu);
+            autoPlay = true;
             return;
         }
         MMAdConfig adConfig = new MMAdConfig();
@@ -175,7 +176,9 @@ public class RewardVideoAd {
                         JSBKit.get().ShowAdRet("0");
                     }
                 });
-        ad.showAd(mActivity);
+        mActivity.runOnUiThread(()->{
+            ad.showAd(mActivity);
+        });
     }
 
     public Context requireContext() {

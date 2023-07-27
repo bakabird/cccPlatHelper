@@ -168,4 +168,8 @@ export default class PlatIOS extends PlatBase {
     public get uma(): UMA {
         return this._uma
     }
+
+    public get packageVersion(): number {
+        return window.packageVersion;
+    }
 }

@@ -13,7 +13,9 @@ import PlatTT from "./PlatTT";
 
 export default class Plat {
     public static forceUsePlatWeb: boolean = false
+    public static forceUsePlatBase: PlatBase = null;
     public static get inst(): PlatBase {
+        if (Plat.forceUsePlatBase) return Plat.forceUsePlatBase;
         if (Plat.forceUsePlatWeb) return PlatWeb.getInstance();
         if (DEV) return PlatWeb.getInstance();
         if (WECHAT) {

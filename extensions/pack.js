@@ -6,6 +6,7 @@ async function Run() {
 	var zip = new AdmZip();
 	var dirs = ["dist", "i18n", "node_modules", "static"]
 	zip.addLocalFile("package.json");
+	zip.addLocalFile("NPM-REINSTALL.bat");
 	for (let index = 0; index < dirs.length; index++) {
 		const dir = dirs[index];
 		await zip.addLocalFolderPromise(dir, {

@@ -1,9 +1,12 @@
 package com.cocos.game;
 
 import android.util.Log;
+import android.view.Gravity;
 
+import com.LinesXFree.cocos.BuildConfig;
 import com.qhhz.cocos.libandroid.JSBKitBase;
 import com.qhhz.cocos.libandroid.Runkit;
+import com.qhhz.cocos.libandroid.SplashDialog;
 import com.vivo.unionsdk.open.VivoAccountCallback;
 import com.vivo.unionsdk.open.VivoUnionSDK;
 
@@ -26,8 +29,8 @@ public class JSBKit extends JSBKitBase {
 
     @Override
     protected void OnAntiAddiction(String uid) {
-        AppActivity act = AppActivity.get();
         if (!mem_AntiAddiction) {
+            AppActivity act = AppActivity.get();
             VivoUnionSDK.registerAccountCallback(act, new VivoAccountCallback() {
                 @Override
                 public void onVivoAccountLogin(String username, String openid, String authToken) {
@@ -57,7 +60,9 @@ public class JSBKit extends JSBKitBase {
             mem_AntiAddiction = true;
         }
         mem_EverAntiAddiction = true;
-        VivoUnionSDK.login(act);
+        AppActivity.doRunOnUiThread(()->{
+            VivoUnionSDK.login(AppActivity.get());
+        });
     }
 
     @Override
@@ -88,9 +93,9 @@ public class JSBKit extends JSBKitBase {
         AdKit.get().hideBanner();
     }
 
-
     @Override
     protected void OnCheckPlatReady(String arg) {
+        Log.d(TAG, "OnCheckPlatReady " + arg);
         if (mem_PlatReady) {
             CheckPlatReadyRet("");
             return;
@@ -99,15 +104,49 @@ public class JSBKit extends JSBKitBase {
         act.runOnUiThread(() -> {
             App.get().initSDK(() -> {
                 VivoUnionSDK.onPrivacyAgreed(act);
+                SplashDialog.Close();
                 mem_PlatReady = true;
                 CheckPlatReadyRet("");
             });
         });
+    }
 
+    @Override
+    protected void OnShowTemplateAd(String arg) {
+        Log.d(TAG, "OnShowTemplateAd " + arg);
+        try {
+            JSONObject data = new JSONObject(arg);
+            JSONObject miArg = data.getJSONObject("andMiArg");
+            String posId = data.getString("posId");
+            int gravity = Gravity.NO_GRAVITY;
+            boolean force =miArg.getBoolean("force");
+            boolean debug = miArg.getBoolean("debug");
+            int argGravity = miArg.getInt("gravity");
+            String widthMode = miArg.getString("widthMode");
+            int widthDp = miArg.getInt("widthDp");
+            String binaryArgGravity = Integer.toBinaryString(argGravity);
+            Log.d(TAG, binaryArgGravity);
+            if (binaryArgGravity.charAt(5) == '1') gravity |= Gravity.TOP;
+            if (binaryArgGravity.charAt(4) == '1') gravity |= Gravity.BOTTOM;
+            if (binaryArgGravity.charAt(3) == '1') gravity |= Gravity.LEFT;
+            if (binaryArgGravity.charAt(2) == '1') gravity |= Gravity.RIGHT;
+            if (binaryArgGravity.charAt(1) == '1') gravity |= Gravity.CENTER_VERTICAL;
+            if (binaryArgGravity.charAt(0) == '1') gravity |= Gravity.CENTER_HORIZONTAL;
+            Log.d(TAG, posId + " " + debug + " " + gravity + " " + widthMode + " " + widthDp);
+            AdKit.get().playTemplate(posId, force, gravity, debug , widthMode, widthDp);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void OnHideTemplateAd(String arg) {
+        Log.d(TAG, "OnHideTemplateAd " + arg);
+        AdKit.get().hideTemplate();
     }
 
     @Override
     public void CheckPlatReadyRet(String arg) {
-        dispatch("CheckPlatReadyRet", "Debug");
+        dispatch("CheckPlatReadyRet", BuildConfig.BUILD_TYPE.equals("release") ? "Release" : "Debug");
     }
 }
