@@ -377,9 +377,10 @@ function reviseGradleProp(options: PlatHelp.ITaskOptions, result: PlatHelp.IResu
     const enableJetifier = "android.enableJetifier=true";
     const protocolUrl = `PROTOCOL_URL="${PROTOCOL_URL}"`
     const privateUrl = `PRIVATE_URL="${PRIVATE_URL}"`
+    const umAppkey = `UM_APPKEY="${options.packages['plat-helper'].umId}"`;
     const packVersion = `PACK_VERSION=${and_packVersion}\nPACK_VERSION_NAME=${and_packVersion}.0`
-    const designWidth = `DESIGN_HEIGHT=${result.settings.screen.designResolution.height}`
-    const designHeight = `DESIGN_WIDTH=${result.settings.screen.designResolution.width}`
+    const designWidth = `DESIGN_HEIGHT=${result.settings ? result.settings.screen.designResolution.height : result["__task"].options.designResolution.height}`
+    const designHeight = `DESIGN_WIDTH=${result.settings ? result.settings.screen.designResolution.width : result["__task"].options.designResolution.width}`
     const channel = `CHANNEL=${and_channel}`
     // const enableAdProp = `ENABLE_AD=${enableAd ? 1 : 0}`
     const compileJavaCommend = `#业务编码字符集, 注意这是指定源码解码的字符集[编译器]`;
@@ -388,7 +389,7 @@ function reviseGradleProp(options: PlatHelp.ITaskOptions, result: PlatHelp.IResu
     const compileTestJava = `compileTestJava.options.encoding="UTF-8"`
     const lineRemoveDetects = [
         "android.useAndroidX", "android.enableJetifier",
-        "PROTOCOL_URL", "PRIVATE_URL", "PACK_VERSION", "PACK_VERSION_NAME",
+        "PROTOCOL_URL", "PRIVATE_URL", "PACK_VERSION", "PACK_VERSION_NAME", "UM_APPKEY",
         "ENABLE_AD",
         "DESIGN_HEIGHT", "DESIGN_WIDTH", "CHANNEL",
         "业务编码字符集", "compileJava.options.encoding",
@@ -443,6 +444,8 @@ function reviseGradleProp(options: PlatHelp.ITaskOptions, result: PlatHelp.IResu
     log("+" + channel);
     propLines.push(packVersion);
     log("+" + packVersion);
+    propLines.push(umAppkey);
+    log("+" + umAppkey);
     writeFileSync(propPath, propLines.join("\n"));
 }
 

@@ -120,11 +120,13 @@ public class AdKit {
             case 402120:
             case 402121:
             case 402114:
+            case 402115:
             case 402116:
             case 402137:
             case 402128:
             case 402129:
             case 402130:
+            case 40120008:
                 return true;
             default:
                 return false;

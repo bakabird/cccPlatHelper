@@ -21,6 +21,7 @@ public class WaterflowerTemplateAd implements ITemplateAdListenner {
     private final int mWidthDp;
 
     private boolean mIsRet;
+    private Handler mTryRenderHandler;
 
     public WaterflowerTemplateAd(String posId, boolean force, int gravity, boolean debug, String widthMode, int widthDp,
                                  FrameLayout adContainer, FrameLayout waterflowerContainer) {
@@ -33,11 +34,13 @@ public class WaterflowerTemplateAd implements ITemplateAdListenner {
         mWidthDp = widthDp;
         mWaterflowerContainer = waterflowerContainer;
         mTemplateAd = new TemplateAd(posId, this);
+        mTryRenderHandler = null;
         mTemplateAd.loadTemplateAd(adContainer);
     }
 
     public void close() {
         Log.d(TAG, "close");
+        mTryRenderHandler.removeCallbacks(this::tryRenderWaterflower);
         AppActivity.get().runOnUiThread(()->{
             FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) mWaterflowerContainer.getLayoutParams();
             params.height = 0;
@@ -95,16 +98,30 @@ public class WaterflowerTemplateAd implements ITemplateAdListenner {
             }
             params.gravity = mGravity;
             mAdContainer.setLayoutParams(params);
-            Handler handler = new Handler();
-            handler.postDelayed(this::renderWaterflower, 666);
+            mTryRenderHandler = new Handler();
+            mTryRenderHandler.postDelayed(this::tryRenderWaterflower, 333);
         });
+    }
+
+    private void tryRenderWaterflower() {
+        Log.d(TAG, "tryRenderWaterflower");
+        if(mIsRet) return;
+        int adWidth =  mAdContainer.getMeasuredWidth();
+        int adHeight =  mAdContainer.getMeasuredHeight();
+        if(adWidth != 0 && adHeight != 0) {
+            this.renderWaterflower();
+        } else {
+            mTryRenderHandler = new Handler();
+            mTryRenderHandler.postDelayed(this::tryRenderWaterflower, 222);
+        }
     }
 
     @SuppressLint("ClickableViewAccessibility")
     private void renderWaterflower() {
-        float[] hsv = new float[]{120f, 1f, 1f}; // 绿色的 HSV 值，色相为 120，和度和明度都为最大值（1）
+        float[] hsv = new float[]{mForce ? 120f : 200f, 1f, 1f}; // 绿色的 HSV 值，色相为 120，和度和明度都为最大值（1）
         int alpha = mDebug ? 50 : 0; // 透明度，范围从 0 到 255，其中 0 表示完全透明，255 表示完全不透明
         int color = Color.HSVToColor(alpha, hsv);
+        WaterflowerTemplateAd self = this;
         AppActivity.get().runOnUiThread(()->{
             FrameLayout.LayoutParams waterParams = (FrameLayout.LayoutParams) mWaterflowerContainer.getLayoutParams();
             Integer adWidth = mAdContainer.getMeasuredWidth();
@@ -139,6 +156,15 @@ public class WaterflowerTemplateAd implements ITemplateAdListenner {
                             // 手指抬起时操作
                             // 将触摸事件转发目标按钮
                             mAdContainer.dispatchTouchEvent(event);
+
+                            // 一个BUG修复，第一次启动的时候 原生广告的关闭按钮 按了没反应。。。
+                            Handler secCheck = new Handler();
+                            secCheck.postDelayed(()->{
+                                if(!mIsRet) {
+                                    Log.d(TAG,"MagicClose.");
+                                    self.onDismiss();
+                                }
+                            }, 111);
                             break;
                     }
                     return true;

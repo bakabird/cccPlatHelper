@@ -1,5 +1,6 @@
 package com.cocos.game;
 
+import android.os.Handler;
 import android.util.Log;
 import android.view.Gravity;
 
@@ -12,6 +13,9 @@ import com.vivo.unionsdk.open.VivoUnionSDK;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class JSBKit extends JSBKitBase {
     private static JSBKit _me;
@@ -60,9 +64,18 @@ public class JSBKit extends JSBKitBase {
             mem_AntiAddiction = true;
         }
         mem_EverAntiAddiction = true;
-        AppActivity.doRunOnUiThread(()->{
-            VivoUnionSDK.login(AppActivity.get());
-        });
+
+        Timer timer = new Timer();
+        TimerTask task = new TimerTask() {
+            @Override
+            public void run() {
+                AppActivity.doRunOnUiThread(() -> {
+                    VivoUnionSDK.login(AppActivity.get());
+                });
+            }
+        };
+        //1000ms执行一次
+        timer.schedule(task, 666);
     }
 
     @Override

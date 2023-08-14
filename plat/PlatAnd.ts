@@ -29,6 +29,7 @@ export default class PlatAnd extends PlatBase {
     constructor() {
         super();
         if (NATIVE) {
+            jsb.jsbBridgeWrapper.removeAllListeners();
             jsb.jsbBridgeWrapper.addNativeEventListener("ShowAdRet", (code: string) => {
                 var icode = parseInt(code);
                 this.logCatch("ShowAdRet")

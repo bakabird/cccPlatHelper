@@ -6,7 +6,6 @@ import { PlatHWParam } from "./PlatHW";
 export type ADCallback = (isSuc: boolean) => void;
 
 export enum GamePlat {
-    dev = "dev",
     web = "web",
     wx = "wx",
     vivo = "vivo",
@@ -68,7 +67,7 @@ export default class PlatBase {
             [key in GamePlat]?: boolean
         },
         replacePlat?: {
-            [key in GamePlat]?: () => PlatBase
+            [key in GamePlat]?: { new(): PlatBase }
         },
         huaweiParam?: PlatHWParam,
     }) {
@@ -85,11 +84,12 @@ export default class PlatBase {
         this.isLandsacpe = this.isLandsacpe;
         this._isInit = true;
         // console.error(this.plat)
-        if (option.usePlatWeb && option.usePlatWeb[this.plat]) {
+        if (option.replacePlat && option.replacePlat[this.plat] && !Plat.forceUsePlatBase) {
+            Plat.forceUsePlatBase = new option.replacePlat[this.plat]();
+            Plat.inst.init(option);
+        } else if (option.usePlatWeb && option.usePlatWeb[this.plat]) {
             Plat.forceUsePlatWeb = true;
-        }
-        if (option.replacePlat && option.replacePlat[this.plat]) {
-            Plat.forceUsePlatBase = option.replacePlat[this.plat]();
+            Plat.inst.init(option);
         }
     }
 
@@ -323,7 +323,7 @@ export default class PlatBase {
     }
 
     public get plat(): GamePlat {
-        return GamePlat.dev;
+        return GamePlat.web;
     }
 
     public get channel(): Channel {

@@ -188,7 +188,7 @@ const plat_option = {
     buildPathTooltip: {
         label: "[查表]构建路径/buildPath",
         default: "<-----将鼠标移动到左边查看。",
-        description: "Vivo android-vivo\nOppo android-taptap\n小米 android-mi\nTaptap android-taptap\n应用宝 android-yyb",
+        description: "Vivo android-vivo\nOppo android-oppo\n小米 android-mi\nTaptap android-taptap\n应用宝 android-yyb",
         render: {
             ui: 'ui-input',
             attributes: {
