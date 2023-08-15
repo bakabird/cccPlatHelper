@@ -8,6 +8,7 @@ import electron from "electron"
 export default class CfgUtil {
     public static cfgData: Record<string, any> = {
         platTSDirPath: "project://",// ts脚本根路径
+        platAdCfgDirPath: "project://",// ts脚本根路径
     }
     public static initCfg(cb?: (data: any) => void) {
         let configFilePath = this._getAppCfgPath();

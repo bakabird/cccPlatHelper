@@ -1,9 +1,18 @@
 <!-- <div class="layout vertical start-justified"> -->
 <div>
-    <ui-prop message="Plat文件夹的位置">
+
+    <!-- <ui-prop message="Plat文件夹的位置">
         <ui-label slot="label">Plat</ui-label>
         <ui-file slot="content" ref="tsDir" type="directory" protocols="project"
             @confirm="onConfirmPlatPath($event.target.value)"></ui-file>
+        <! -- <ui-input slot="content" v-value="configPath" disabled></ui-input>
+        <ui-button @confirm="onBtnClickOpenJsSavePath">打开</ui-button>
+        <ui-button @confirm="onBtnClickSelectConfigPath">选择目录</ui-button> -- >
+    </ui-prop> -->
+    <ui-prop message="放置 AdCfg 的文件夹">
+        <ui-label slot="label">AdCfg</ui-label>
+        <ui-file slot="content" ref="adCfgDir" type="directory" protocols="project"
+            @confirm="onConfirmAdCfgPath($event.target.value)"></ui-file>
         <!-- <ui-input slot="content" v-value="configPath" disabled></ui-input>
         <ui-button @confirm="onBtnClickOpenJsSavePath">打开</ui-button>
         <ui-button @confirm="onBtnClickSelectConfigPath">选择目录</ui-button> -->

@@ -5,10 +5,8 @@ import { Channel, PlatHelp, checkAndEnable, checkIosEnable } from './builder';
 import packageJSON from '../package.json';
 import path from 'path';
 import fs from "fs-extra"
-import CfgUtil from './CfgUtil';
 import UmKit from './UmKit';
 
-let rawPlatTSDir = "";
 const PACKAGE_NAME = 'plat-helper';
 const joinPack = (...arg: string[]) => {
     return path.join(__dirname, "../", ...arg);
@@ -56,10 +54,6 @@ export const throwError: BuildHook.throwError = true;
 export const load: BuildHook.load = async function () {
     console.log(`[${PACKAGE_NAME}] Load cocos plugin example in builder.`);
     console.log("packageJSON.DEBUG_WORD=" + packageJSON.DEBUG_WORD);
-    CfgUtil.initCfg(data => {
-        rawPlatTSDir = Editor.UI.File.resolveToRaw(data.platTSDirPath)
-        console.log("rawPlatTSDir", rawPlatTSDir)
-    })
     // allAssets = await Editor.Message.request('asset-db', 'query-assets');
 };
 
@@ -112,21 +106,21 @@ function getOrientation(options: PlatHelp.ITaskOptions): Orientation {
         (orientationOption.landscapeLeft ? "reverseLandscape" : (orientationOption.landscapeRight ? "landscape" : "portrait"));
 }
 
-function revisePlatCfg(options: PlatHelp.ITaskOptions) {
-    if (rawPlatTSDir == "") return;
-    const { and_channel: channel } = options.packages['plat-helper'];
-    const GameCfgPath = Editor.Utils.Path.join(rawPlatTSDir, "./PlatCfg.ts");
-    const cfgCnt = readFileSync(GameCfgPath, "utf-8");
-    const cfgLines = cfgCnt.split("\n");
-    for (let index = 0; index < cfgLines.length; index++) {
-        const line = cfgLines[index];
-        if (line.indexOf("env:") > -1) {
-            cfgLines[index] = `env: GameEnv.${channel},`;
-        }
-    }
-    writeFileSync(GameCfgPath, cfgLines.join("\n"));
-    log("已修改 PlatCfg.ts " + `env ${channel}`);
-}
+// function revisePlatCfg(options: PlatHelp.ITaskOptions) {
+//     if (rawPlatTSDir == "") return;
+//     const { and_channel: channel } = options.packages['plat-helper'];
+//     const GameCfgPath = Editor.Utils.Path.join(rawPlatTSDir, "./PlatCfg.ts");
+//     const cfgCnt = readFileSync(GameCfgPath, "utf-8");
+//     const cfgLines = cfgCnt.split("\n");
+//     for (let index = 0; index < cfgLines.length; index++) {
+//         const line = cfgLines[index];
+//         if (line.indexOf("env:") > -1) {
+//             cfgLines[index] = `env: GameEnv.${channel},`;
+//         }
+//     }
+//     writeFileSync(GameCfgPath, cfgLines.join("\n"));
+//     log("已修改 PlatCfg.ts " + `env ${channel}`);
+// }
 
 function attachASProj(options: PlatHelp.ITaskOptions) {
     if (options.platform != "android") return;

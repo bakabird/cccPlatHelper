@@ -1,8 +1,4 @@
-// ！不要删除也不要修改这个注释！ Version 3
-import { BYTEDANCE, HUAWEI, NATIVE, OPPO, VIVO, WECHAT, XIAOMI } from "cc/env";
-import { sys } from "cc";
-import Plat from "../Plat";
-import { Channel } from "../PlatBase";
+// ！不要删除也不要修改这个注释！ Version 4
 
 export default {
     rwdAdDefault: "",
@@ -55,52 +51,4 @@ export default {
     // ios
     _ios_: {
     },
-
-
-    /**
-     * 根据平台调整配置
-     */
-    ajustByPlat() {
-        let plat = "default";
-        if (NATIVE && sys.os === sys.OS.ANDROID) {
-            // if (true) {
-            switch (Plat.inst.channel) {
-                case Channel.Oppo: plat = "and_oppo";
-                    break;
-                case Channel.Mi: plat = "and_mi";
-                    break;
-                case Channel.Vivo: plat = "and_vivo";
-                    break;
-                case Channel.YYB: plat = "and_yyb";
-                    break;
-                case Channel.Taptap: plat = "and_taptap";
-                    break;
-            }
-        } else if (NATIVE && sys.os === sys.OS.IOS) {
-            plat = "ios";
-        } else if (WECHAT) {
-            plat = "wx";
-        } else if (BYTEDANCE) {
-            plat = "tt"
-        } else if (HUAWEI) {
-            plat = "hw"
-        } else if (VIVO) {
-            plat = "vivo";
-        } else if (OPPO) {
-            plat = "oppo";
-        } else if (XIAOMI) {
-            plat = "mi";
-        }
-
-        const base = this;
-        const platCfg = base[`_${plat}_`];
-        if (platCfg) {
-            for (const key in platCfg) {
-                if (Object.prototype.hasOwnProperty.call(platCfg, key)) {
-                    const value = platCfg[key];
-                    base[key] = value;
-                }
-            }
-        }
-    }
 }

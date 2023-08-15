@@ -8,6 +8,7 @@ const joinPack = (...arg: string[]) => {
     return join(__dirname, '../../../', ...arg);
 }
 
+const CONST_LASTEST_ADCFG_VERSION = 4;
 const panelDataMap = new WeakMap<any, App>();
 
 console.log("default panel init");
@@ -44,16 +45,19 @@ module.exports = Editor.Panel.define({
         app.component('MyApp', {
             template: fs.readFileSync(joinPack('static/template/vue/app.html'), 'utf-8'),
             setup() { // 返回值会暴露给模板和其他的选项式 API 钩子
-                const tsDir = ref(0);
+                // const tsDir = ref(0);
+                const adCfgDir = ref(0);
                 // 返回值会暴露给模板和其他的选项式 API 钩子
                 return {
-                    tsDir,
+                    // tsDir,
+                    adCfgDir
                 }
             },
             data() {
                 return {
                     logView: "",
                     platTSDirPath: "project://",
+                    platAdCfgDirPath: "project://",
                 }
             },
             watch: { // 侦听根级属性
@@ -69,6 +73,13 @@ module.exports = Editor.Panel.define({
                         return null;
                     }
                 },
+                rawPlatAdCfgDirPath() {
+                    if (this.platAdCfgDirPath) {
+                        return Editor.UI.File.resolveToRaw(this.platAdCfgDirPath);
+                    } else {
+                        return null;
+                    }
+                },
             },
             mounted() {
                 this._initPluginCfg();
@@ -76,11 +87,14 @@ module.exports = Editor.Panel.define({
             methods: {
                 _initPluginCfg() {
                     CfgUtil.initCfg((data) => {
-                        this.tsDir.protocol = "project"
+                        // this.tsDir.protocol = "project"
+                        this.adCfgDir.protocol = "project"
                         if (data) {
                             this._addLog("confirm config path: " + JSON.stringify(data))
-                            this.platTSDirPath = data.platTSDirPath;
-                            this.tsDir.value = this.platTSDirPath;
+                            // this.platTSDirPath = data.platTSDirPath;
+                            // this.tsDir.value = this.platTSDirPath;
+                            this.platAdCfgDirPath = data.platAdCfgDirPath;
+                            this.adCfgDir.value = this.platAdCfgDirPath;
                         }
                     });
                 },
@@ -94,11 +108,16 @@ module.exports = Editor.Panel.define({
                     this.platTSDirPath = dir;
                     CfgUtil.saveCfgByData({ platTSDirPath: this.platTSDirPath });
                 },
+                onConfirmAdCfgPath(dir: string) {
+                    this._addLog("confirm adCfg path: " + dir)
+                    this.platAdCfgDirPath = dir;
+                    CfgUtil.saveCfgByData({ platAdCfgDirPath: this.platAdCfgDirPath });
+                },
                 onClickCreateAdCfgTS() {
                     this._addLog("onClickCreateAdCfgTS")
-                    if (this.rawPlatTSDirPath) {
-                        if (fs.existsSync(this.rawPlatTSDirPath)) {
-                            const path = join(this.rawPlatTSDirPath, "custom/AdCfg.ts");
+                    if (this.platAdCfgDirPath) {
+                        if (fs.existsSync(this.rawPlatAdCfgDirPath)) {
+                            const path = join(this.rawPlatAdCfgDirPath, "AdCfg.ts");
                             if (!fs.existsSync(path)) {
                                 fs.copyFileSync(joinPack("static/asset/AdCfg.ts.txt"), path);
                                 Editor.Message.send("asset-db", "refresh-asset", 'db://assets/');
@@ -115,9 +134,9 @@ module.exports = Editor.Panel.define({
                 },
                 onClickUpdateAdCfgTS() {
                     this._addLog("onClickUpdateAdCfgTS")
-                    if (this.rawPlatTSDirPath) {
-                        if (fs.existsSync(this.rawPlatTSDirPath)) {
-                            const path = join(this.rawPlatTSDirPath, "custom/AdCfg.ts");
+                    if (this.platAdCfgDirPath) {
+                        if (fs.existsSync(this.rawPlatAdCfgDirPath)) {
+                            const path = join(this.rawPlatAdCfgDirPath, "AdCfg.ts");
                             if (fs.existsSync(path)) {
                                 let content = fs.readFileSync(path, "utf-8");
                                 // get the version
@@ -149,15 +168,14 @@ module.exports = Editor.Panel.define({
                                 this._addLog("AdCfg.ts 更新失败！err: AdCfg.ts 文件不存在")
                             }
                         } else {
-                            this._addLog("AdCfg.ts 更新失败！err: platTSDirPath 对应文件夹不存在")
+                            this._addLog("AdCfg.ts 更新失败！err: platAdCfgDirPath 对应文件夹不存在")
                         }
                     } else {
-                        this._addLog("AdCfg.ts 更新失败！err: 尚未设置 platTSDirPath")
+                        this._addLog("AdCfg.ts 更新失败！err: 尚未设置 platAdCfgDirPath")
                     }
                 },
                 _updateAdCfg(curVersion: number, contentPack: { content: string }): number {
                     let tmpNum = 0;
-                    const lastestVersion = 3;
                     let lines = contentPack.content.split("\n");
                     if (curVersion < 1) {
                         // 0 -> 1
@@ -233,9 +251,13 @@ module.exports = Editor.Panel.define({
                             `            plat = "hw"`
                         );
                     }
+                    if (curVersion < 4) {
+                        // 巨大改动，不兼容更新。
+                        // 以后可以默认 AdCfg 的版本一定大于等于 4。
+                    }
                     contentPack.content = lines.join("\n");
                     // remove Version
-                    return lastestVersion;
+                    return CONST_LASTEST_ADCFG_VERSION;
                 },
             },
         })

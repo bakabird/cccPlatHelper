@@ -58,7 +58,8 @@ class CfgUtil {
 }
 exports.default = CfgUtil;
 CfgUtil.cfgData = {
-    platTSDirPath: "project://", // ts脚本根路径
+    platTSDirPath: "project://",
+    platAdCfgDirPath: "project://", // ts脚本根路径
 };
 // module.exports = {
 //     cfgData: {

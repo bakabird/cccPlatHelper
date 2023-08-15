@@ -34,6 +34,7 @@ const join = path_1.default.join;
 const joinPack = (...arg) => {
     return join(__dirname, '../../../', ...arg);
 };
+const CONST_LASTEST_ADCFG_VERSION = 4;
 const panelDataMap = new WeakMap();
 console.log("default panel init");
 /**
@@ -69,16 +70,19 @@ module.exports = Editor.Panel.define({
         app.component('MyApp', {
             template: fs.readFileSync(joinPack('static/template/vue/app.html'), 'utf-8'),
             setup() {
-                const tsDir = (0, vue_1.ref)(0);
+                // const tsDir = ref(0);
+                const adCfgDir = (0, vue_1.ref)(0);
                 // 返回值会暴露给模板和其他的选项式 API 钩子
                 return {
-                    tsDir,
+                    // tsDir,
+                    adCfgDir
                 };
             },
             data() {
                 return {
                     logView: "",
                     platTSDirPath: "project://",
+                    platAdCfgDirPath: "project://",
                 };
             },
             watch: {
@@ -95,6 +99,14 @@ module.exports = Editor.Panel.define({
                         return null;
                     }
                 },
+                rawPlatAdCfgDirPath() {
+                    if (this.platAdCfgDirPath) {
+                        return Editor.UI.File.resolveToRaw(this.platAdCfgDirPath);
+                    }
+                    else {
+                        return null;
+                    }
+                },
             },
             mounted() {
                 this._initPluginCfg();
@@ -102,11 +114,14 @@ module.exports = Editor.Panel.define({
             methods: {
                 _initPluginCfg() {
                     CfgUtil_1.default.initCfg((data) => {
-                        this.tsDir.protocol = "project";
+                        // this.tsDir.protocol = "project"
+                        this.adCfgDir.protocol = "project";
                         if (data) {
                             this._addLog("confirm config path: " + JSON.stringify(data));
-                            this.platTSDirPath = data.platTSDirPath;
-                            this.tsDir.value = this.platTSDirPath;
+                            // this.platTSDirPath = data.platTSDirPath;
+                            // this.tsDir.value = this.platTSDirPath;
+                            this.platAdCfgDirPath = data.platAdCfgDirPath;
+                            this.adCfgDir.value = this.platAdCfgDirPath;
                         }
                     });
                 },
@@ -120,11 +135,16 @@ module.exports = Editor.Panel.define({
                     this.platTSDirPath = dir;
                     CfgUtil_1.default.saveCfgByData({ platTSDirPath: this.platTSDirPath });
                 },
+                onConfirmAdCfgPath(dir) {
+                    this._addLog("confirm adCfg path: " + dir);
+                    this.platAdCfgDirPath = dir;
+                    CfgUtil_1.default.saveCfgByData({ platAdCfgDirPath: this.platAdCfgDirPath });
+                },
                 onClickCreateAdCfgTS() {
                     this._addLog("onClickCreateAdCfgTS");
-                    if (this.rawPlatTSDirPath) {
-                        if (fs.existsSync(this.rawPlatTSDirPath)) {
-                            const path = join(this.rawPlatTSDirPath, "custom/AdCfg.ts");
+                    if (this.platAdCfgDirPath) {
+                        if (fs.existsSync(this.rawPlatAdCfgDirPath)) {
+                            const path = join(this.rawPlatAdCfgDirPath, "AdCfg.ts");
                             if (!fs.existsSync(path)) {
                                 fs.copyFileSync(joinPack("static/asset/AdCfg.ts.txt"), path);
                                 Editor.Message.send("asset-db", "refresh-asset", 'db://assets/');
@@ -145,9 +165,9 @@ module.exports = Editor.Panel.define({
                 onClickUpdateAdCfgTS() {
                     var _a, _b;
                     this._addLog("onClickUpdateAdCfgTS");
-                    if (this.rawPlatTSDirPath) {
-                        if (fs.existsSync(this.rawPlatTSDirPath)) {
-                            const path = join(this.rawPlatTSDirPath, "custom/AdCfg.ts");
+                    if (this.platAdCfgDirPath) {
+                        if (fs.existsSync(this.rawPlatAdCfgDirPath)) {
+                            const path = join(this.rawPlatAdCfgDirPath, "AdCfg.ts");
                             if (fs.existsSync(path)) {
                                 let content = fs.readFileSync(path, "utf-8");
                                 // get the version
@@ -180,16 +200,15 @@ module.exports = Editor.Panel.define({
                             }
                         }
                         else {
-                            this._addLog("AdCfg.ts 更新失败！err: platTSDirPath 对应文件夹不存在");
+                            this._addLog("AdCfg.ts 更新失败！err: platAdCfgDirPath 对应文件夹不存在");
                         }
                     }
                     else {
-                        this._addLog("AdCfg.ts 更新失败！err: 尚未设置 platTSDirPath");
+                        this._addLog("AdCfg.ts 更新失败！err: 尚未设置 platAdCfgDirPath");
                     }
                 },
                 _updateAdCfg(curVersion, contentPack) {
                     let tmpNum = 0;
-                    const lastestVersion = 3;
                     let lines = contentPack.content.split("\n");
                     if (curVersion < 1) {
                         // 0 -> 1
@@ -237,9 +256,13 @@ module.exports = Editor.Panel.define({
                         // 塞入 
                         lines.splice(tmpNum, 0, `        } else if (BYTEDANCE) {`, `            plat = "tt"`, `        } else if (HUAWEI) {`, `            plat = "hw"`);
                     }
+                    if (curVersion < 4) {
+                        // 巨大改动，不兼容更新。
+                        // 以后可以默认 AdCfg 的版本一定大于等于 4。
+                    }
                     contentPack.content = lines.join("\n");
                     // remove Version
-                    return lastestVersion;
+                    return CONST_LASTEST_ADCFG_VERSION;
                 },
             },
         });
